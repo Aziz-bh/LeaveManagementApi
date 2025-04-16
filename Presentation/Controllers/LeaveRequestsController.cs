@@ -60,4 +60,12 @@ public class LeaveRequestsController : ControllerBase
         await _service.DeleteAsync(id);
         return NoContent();
     }
+
+    // GET: api/leaverequests/filter
+    [HttpGet("filter")]
+    public async Task<ActionResult<List<LeaveRequestDto>>> Filter([FromQuery] LeaveRequestFilterDto filter)
+    {
+        var result = await _service.GetFilteredAsync(filter);
+        return Ok(result);
+    }
 }
