@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using System.Globalization;
+using Application.DTOs;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
@@ -112,14 +113,20 @@ public class LeaveRequestService : ILeaveRequestService
         var sortBy = filter.SortBy;
         var sortOrder = filter.SortOrder.ToLower();
 
-        if (sortOrder == "desc")
-            filtered = filtered.OrderByDescending(e => EF.Property<object>(e, sortBy));
-        else
-            filtered = filtered.OrderBy(e => EF.Property<object>(e, sortBy));
+        var propInfo = typeof(LeaveRequest).GetProperty(sortBy);
+        if (propInfo != null)
+        {
+            filtered = sortOrder == "desc"
+                ? filtered.OrderByDescending(e => propInfo.GetValue(e, null))
+                : filtered.OrderBy(e => propInfo.GetValue(e, null));
+        }
 
-        // Pagination
-        filtered = filtered.Skip((filter.Page - 1) * filter.PageSize).Take(filter.PageSize);
+        //Pagination
+        filtered = filtered
+            .Skip((filter.Page - 1) * filter.PageSize)
+            .Take(filter.PageSize);
 
         return _mapper.Map<List<LeaveRequestDto>>(filtered.ToList());
     }
+
 }
