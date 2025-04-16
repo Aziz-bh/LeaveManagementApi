@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Persistence.Repositories;
+namespace Application.Interfaces;
 
 public interface IRepository<T> where T : class
 {
@@ -14,4 +14,3 @@ public interface IRepository<T> where T : class
     Task UpdateAsync(T entity);
     Task DeleteAsync(T entity);
 }
-

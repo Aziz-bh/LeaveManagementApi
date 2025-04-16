@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence;
@@ -12,7 +6,9 @@ namespace Infrastructure.Persistence;
 public class LeaveManagementContext : DbContext
 {
     public LeaveManagementContext(DbContextOptions<LeaveManagementContext> options)
-        : base(options) { }
+        : base(options)
+    {
+    }
 
     public DbSet<Employee> Employees { get; set; }
     public DbSet<LeaveRequest> LeaveRequests { get; set; }
@@ -22,9 +18,9 @@ public class LeaveManagementContext : DbContext
         modelBuilder.Entity<Employee>()
             .HasMany(e => e.LeaveRequests)
             .WithOne(lr => lr.Employee)
-            .HasForeignKey(lr => lr.EmployeeId);
+            .HasForeignKey(lr => lr.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         base.OnModelCreating(modelBuilder);
     }
 }
-
