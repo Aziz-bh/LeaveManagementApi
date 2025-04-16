@@ -85,60 +85,41 @@ public class LeaveRequestService : ILeaveRequestService
         await _repository.UpdateAsync(leave);
     }
 
-    public async Task<List<LeaveRequestDto>> GetFilteredAsync(
-        int? employeeId, LeaveType? leaveType, LeaveStatus? status,
-        DateTime? startDate, DateTime? endDate, string? keyword,
-        int page, int pageSize, string sortBy, string sortOrder)
+    public async Task<List<LeaveRequestDto>> GetFilteredAsync(LeaveRequestFilterDto filter)
     {
         var query = await _repository.GetAllAsync();
         var filtered = query.AsQueryable();
 
-        if (employeeId.HasValue)
-            filtered = filtered.Where(l => l.EmployeeId == employeeId.Value);
+        if (filter.EmployeeId.HasValue)
+            filtered = filtered.Where(l => l.EmployeeId == filter.EmployeeId.Value);
 
-        if (leaveType.HasValue)
-            filtered = filtered.Where(l => l.LeaveType == leaveType.Value);
+        if (filter.LeaveType.HasValue)
+            filtered = filtered.Where(l => l.LeaveType == filter.LeaveType.Value);
 
-        if (status.HasValue)
-            filtered = filtered.Where(l => l.Status == status.Value);
+        if (filter.Status.HasValue)
+            filtered = filtered.Where(l => l.Status == filter.Status.Value);
 
-        if (startDate.HasValue)
-            filtered = filtered.Where(l => l.StartDate >= startDate.Value);
+        if (filter.StartDate.HasValue)
+            filtered = filtered.Where(l => l.StartDate >= filter.StartDate.Value);
 
-        if (endDate.HasValue)
-            filtered = filtered.Where(l => l.EndDate <= endDate.Value);
+        if (filter.EndDate.HasValue)
+            filtered = filtered.Where(l => l.EndDate <= filter.EndDate.Value);
 
-        if (!string.IsNullOrWhiteSpace(keyword))
-            filtered = filtered.Where(l => l.Reason.ToLower().Contains(keyword.ToLower()));
+        if (!string.IsNullOrWhiteSpace(filter.Keyword))
+            filtered = filtered.Where(l => l.Reason.ToLower().Contains(filter.Keyword.ToLower()));
 
-        filtered = sortOrder?.ToLower() == "desc"
-            ? filtered.OrderByDescending(e => EF.Property<object>(e, sortBy))
-            : filtered.OrderBy(e => EF.Property<object>(e, sortBy));
+        // Sorting
+        var sortBy = filter.SortBy;
+        var sortOrder = filter.SortOrder.ToLower();
 
-        var result = filtered
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
+        if (sortOrder == "desc")
+            filtered = filtered.OrderByDescending(e => EF.Property<object>(e, sortBy));
+        else
+            filtered = filtered.OrderBy(e => EF.Property<object>(e, sortBy));
 
-        return _mapper.Map<List<LeaveRequestDto>>(result);
-    }
+        // Pagination
+        filtered = filtered.Skip((filter.Page - 1) * filter.PageSize).Take(filter.PageSize);
 
-    public async Task<object> GetReportAsync(int year)
-    {
-        var all = await _repository.GetAllAsync();
-        var filtered = all.Where(l => l.StartDate.Year == year && l.Status == LeaveStatus.Approved);
-
-        var report = filtered
-            .GroupBy(l => l.Employee.FullName)
-            .Select(g => new
-            {
-                Employee = g.Key,
-                TotalLeaves = g.Count(),
-                AnnualLeaves = g.Count(l => l.LeaveType == LeaveType.Annual),
-                SickLeaves = g.Count(l => l.LeaveType == LeaveType.Sick)
-            })
-            .ToList();
-
-        return report;
+        return _mapper.Map<List<LeaveRequestDto>>(filtered.ToList());
     }
 }
