@@ -1,10 +1,12 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using Application.DTOs;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using LinqKit;
 
 namespace Application.Services;
 
@@ -88,40 +90,40 @@ public class LeaveRequestService : ILeaveRequestService
 
     public async Task<List<LeaveRequestDto>> GetFilteredAsync(LeaveRequestFilterDto filter)
     {
-        var query = await _repository.GetAllAsync();
-        var filtered = query.AsQueryable();
+        var all = await _repository.GetAllAsync();
+        var predicate = PredicateBuilder.New<LeaveRequest>(true); // start with true
 
         if (filter.EmployeeId.HasValue)
-            filtered = filtered.Where(l => l.EmployeeId == filter.EmployeeId.Value);
+            predicate = predicate.And(l => l.EmployeeId == filter.EmployeeId.Value);
 
         if (filter.LeaveType.HasValue)
-            filtered = filtered.Where(l => l.LeaveType == filter.LeaveType.Value);
+            predicate = predicate.And(l => l.LeaveType == filter.LeaveType.Value);
 
         if (filter.Status.HasValue)
-            filtered = filtered.Where(l => l.Status == filter.Status.Value);
+            predicate = predicate.And(l => l.Status == filter.Status.Value);
 
         if (filter.StartDate.HasValue)
-            filtered = filtered.Where(l => l.StartDate >= filter.StartDate.Value);
+            predicate = predicate.And(l => l.StartDate >= filter.StartDate.Value);
 
         if (filter.EndDate.HasValue)
-            filtered = filtered.Where(l => l.EndDate <= filter.EndDate.Value);
+            predicate = predicate.And(l => l.EndDate <= filter.EndDate.Value);
 
         if (!string.IsNullOrWhiteSpace(filter.Keyword))
-            filtered = filtered.Where(l => l.Reason.ToLower().Contains(filter.Keyword.ToLower()));
+            predicate = predicate.And(l => l.Reason.ToLower().Contains(filter.Keyword.ToLower()));
 
-        // Sorting
-        var sortBy = filter.SortBy;
-        var sortOrder = filter.SortOrder.ToLower();
+        // Apply the predicate to your query
+        var filtered = all.AsQueryable().AsExpandable().Where(predicate);
 
-        var propInfo = typeof(LeaveRequest).GetProperty(sortBy);
+        // Reflection-based dynamic sorting
+        var propInfo = typeof(LeaveRequest).GetProperty(filter.SortBy);
         if (propInfo != null)
         {
-            filtered = sortOrder == "desc"
+            filtered = filter.SortOrder.ToLower() == "desc"
                 ? filtered.OrderByDescending(e => propInfo.GetValue(e, null))
                 : filtered.OrderBy(e => propInfo.GetValue(e, null));
         }
 
-        //Pagination
+        // Pagination
         filtered = filtered
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize);
