@@ -68,4 +68,23 @@ public class LeaveRequestsController : ControllerBase
         var result = await _service.GetFilteredAsync(filter);
         return Ok(result);
     }
+
+    // PUT: api/leaverequests/{id}/approve
+    [HttpPut("{id}/approve")]
+    public async Task<IActionResult> Approve(int id)
+    {
+        try
+        {
+            await _service.ApproveAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }
