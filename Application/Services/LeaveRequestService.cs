@@ -91,7 +91,7 @@ public class LeaveRequestService : ILeaveRequestService
     public async Task<List<LeaveRequestDto>> GetFilteredAsync(LeaveRequestFilterDto filter)
     {
         var all = await _repository.GetAllAsync();
-        var predicate = PredicateBuilder.New<LeaveRequest>(true); // start with true
+        var predicate = PredicateBuilder.New<LeaveRequest>(true);
 
         if (filter.EmployeeId.HasValue)
             predicate = predicate.And(l => l.EmployeeId == filter.EmployeeId.Value);
