@@ -70,7 +70,7 @@ public class LeaveRequestsController : ControllerBase
     }
 
 
-    // GET: api/leaverequests/report?year=2023&department=IT&startDate=2023-01-01&endDate=2023-12-31
+    // GET: api/leaverequests/report?year=
     [HttpGet("report")]
     public async Task<ActionResult<List<LeaveReportDto>>> GetReport(
         [FromQuery] int year,
