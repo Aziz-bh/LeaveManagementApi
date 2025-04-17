@@ -99,10 +99,10 @@ public class LeaveRequestService : ILeaveRequestService
         if (!string.IsNullOrWhiteSpace(filter.Keyword))
             predicate = predicate.And(l => l.Reason.ToLower().Contains(filter.Keyword.ToLower()));
 
-        // Apply the predicate to your query
+        //Filtering (i used LinqKit for dynamic filtering)
         var filtered = all.AsQueryable().AsExpandable().Where(predicate);
 
-        // Reflection-based dynamic sorting
+   
         var propInfo = typeof(LeaveRequest).GetProperty(filter.SortBy);
         if (propInfo != null)
         {
