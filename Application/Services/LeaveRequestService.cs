@@ -63,7 +63,7 @@ public class LeaveRequestService : ILeaveRequestService
         var leave = await _repository.GetByIdAsync(id)
             ?? throw new KeyNotFoundException("Leave request not found.");
 
-        // Optional: add validations again if needed
+    
         _mapper.Map(dto, leave);
         await _repository.UpdateAsync(leave);
     }
