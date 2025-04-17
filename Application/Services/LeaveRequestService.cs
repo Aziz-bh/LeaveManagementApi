@@ -131,4 +131,11 @@ public class LeaveRequestService : ILeaveRequestService
         return _mapper.Map<List<LeaveRequestDto>>(filtered.ToList());
     }
 
+    public async Task<List<LeaveReportDto>> GetReportAsync(int year, string? department, DateTime? startDate, DateTime? endDate)
+    {
+        return await _repository.GetLeaveReportAsync(year, department, startDate, endDate);
+    }
+
+
+
 }
