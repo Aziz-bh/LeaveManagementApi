@@ -76,18 +76,6 @@ public class LeaveRequestService : ILeaveRequestService
         await _repository.DeleteAsync(leave);
     }
 
-    public async Task ApproveAsync(int id)
-    {
-        var leave = await _repository.GetByIdAsync(id)
-            ?? throw new KeyNotFoundException("Leave request not found.");
-
-        if (leave.Status != LeaveStatus.Pending)
-            throw new InvalidOperationException("Only pending requests can be approved.");
-
-        leave.Status = LeaveStatus.Approved;
-        await _repository.UpdateAsync(leave);
-    }
-
     public async Task<List<LeaveRequestDto>> GetFilteredAsync(LeaveRequestFilterDto filter)
     {
         var all = await _repository.GetAllAsync();
@@ -136,6 +124,17 @@ public class LeaveRequestService : ILeaveRequestService
         return await _repository.GetLeaveReportAsync(year, department, startDate, endDate);
     }
 
+    public async Task ApproveAsync(int id)
+    {
+        var leave = await _repository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException("Leave request not found.");
+
+        if (leave.Status != LeaveStatus.Pending)
+            throw new InvalidOperationException("Only pending requests can be approved.");
+
+        leave.Status = LeaveStatus.Approved;
+        await _repository.UpdateAsync(leave);
+    }
 
 
 }

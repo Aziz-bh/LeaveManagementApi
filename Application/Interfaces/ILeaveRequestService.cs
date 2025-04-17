@@ -17,5 +17,7 @@ public interface ILeaveRequestService
     Task DeleteAsync(int id);
     Task<List<LeaveRequestDto>> GetFilteredAsync(LeaveRequestFilterDto filter);
     Task<List<LeaveReportDto>> GetReportAsync(int year, string? department, DateTime? startDate, DateTime? endDate);
+    Task ApproveAsync(int id);
+
 
 }

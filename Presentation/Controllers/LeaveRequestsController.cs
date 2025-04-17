@@ -69,8 +69,21 @@ public class LeaveRequestsController : ControllerBase
         return Ok(result);
     }
 
-    // PUT: api/leaverequests/{id}/approve
-    [HttpPut("{id}/approve")]
+
+    // GET: api/leaverequests/report?year=2023&department=IT&startDate=2023-01-01&endDate=2023-12-31
+    [HttpGet("report")]
+    public async Task<ActionResult<List<LeaveReportDto>>> GetReport(
+        [FromQuery] int year,
+        [FromQuery] string? department,
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate)
+    {
+        var result = await _service.GetReportAsync(year, department, startDate, endDate);
+        return Ok(result);
+    }
+
+    // POST: api/leaverequests/{id}/approve
+    [HttpPost("{id}/approve")]
     public async Task<IActionResult> Approve(int id)
     {
         try
@@ -88,16 +101,5 @@ public class LeaveRequestsController : ControllerBase
         }
     }
 
-    // GET: api/leaverequests/report?year=2023&department=IT&startDate=2023-01-01&endDate=2023-12-31
-    [HttpGet("report")]
-    public async Task<ActionResult<List<LeaveReportDto>>> GetReport(
-        [FromQuery] int year,
-        [FromQuery] string? department,
-        [FromQuery] DateTime? startDate,
-        [FromQuery] DateTime? endDate)
-    {
-        var result = await _service.GetReportAsync(year, department, startDate, endDate);
-        return Ok(result);
-    }
 
 }
