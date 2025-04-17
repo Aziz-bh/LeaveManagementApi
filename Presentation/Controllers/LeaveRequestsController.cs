@@ -87,4 +87,17 @@ public class LeaveRequestsController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    // GET: api/leaverequests/report?year=2023&department=IT&startDate=2023-01-01&endDate=2023-12-31
+    [HttpGet("report")]
+    public async Task<ActionResult<List<LeaveReportDto>>> GetReport(
+        [FromQuery] int year,
+        [FromQuery] string? department,
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate)
+    {
+        var result = await _service.GetReportAsync(year, department, startDate, endDate);
+        return Ok(result);
+    }
+
 }
