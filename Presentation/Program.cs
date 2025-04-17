@@ -22,6 +22,8 @@ builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 builder.Services.AddAutoMapper(typeof(Application.Mappings.MappingProfile));
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 
 builder.Services.AddControllers()
@@ -34,15 +36,23 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Leave Management API v1");
+    c.RoutePrefix = "swagger";
+});
 
 app.UseHttpsRedirection();
 
 
 app.MapControllers();
+
+// Apply pending migrations at startup (only for Docker or local dev)
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<LeaveManagementContext>();
+    dbContext.Database.Migrate(); // Applies any pending migrations
+}
 
 app.Run();
