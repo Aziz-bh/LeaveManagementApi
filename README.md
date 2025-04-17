@@ -28,4 +28,6 @@ dotnet build
 
 Run the Application:
 dotnet run --project Presentation
-Access the API: Navigate to http://localhost:7036/swagger .
+Access the API: Navigate to https://localhost:7036/swagger .
+
+Or you can just try through the web site ( already hosted by me ) link : https://leavemanagement-aziz.azurewebsites.net/swagger/index.html
